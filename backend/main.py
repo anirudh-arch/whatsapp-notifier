@@ -18,6 +18,15 @@ from limiter_config import limiter
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="WhatsApp Campaign Manager API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows requests from your Vercel frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/api/health")
 
 @app.get("/api/health")
 def health_check():
