@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Campaign Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Auth View -->
+    <div id="authView" class="view">
+        <div class="glass-card auth-card">
+            <h1 class="logo-text">WhatsApp Campaign Manager</h1>
+            <div id="loginForm">
+                <h2>Login</h2>
+                <input type="text" id="loginUsername" placeholder="Username">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button onclick="handleLogin()" class="btn-primary">Sign In</button>
+                <p class="toggle-text">Don't have an account? <span onclick="toggleAuth()">Register</span></p>
+            </div>
+            <div id="registerForm" class="hidden">
+                <h2>Register</h2>
+                <input type="text" id="regUsername" placeholder="Username">
+                <input type="email" id="regEmail" placeholder="Email">
+                <input type="password" id="regPassword" placeholder="Password">
+                <button onclick="handleRegister()" class="btn-primary">Create Account</button>
+                <p class="toggle-text">Already have an account? <span onclick="toggleAuth()">Login</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application View -->
+    <div id="mainView" class="view hidden">
+        <nav class="sidebar glass-card">
+            <div class="sidebar-header">
+                <h1 class="logo-text-small">Campaign Manager</h1>
+            </div>
+            <ul class="nav-links">
+                <li onclick="showPage('dashboard')" id="nav-dashboard" class="active">Dashboard</li>
+                <li onclick="showPage('contacts')" id="nav-contacts">Contacts</li>
+                <li onclick="showPage('templates')" id="nav-templates">Templates</li>
+                <li onclick="showPage('composer')" id="nav-composer">Composer</li>
+                <li onclick="showPage('settings')" id="nav-settings">Settings</li>
+            </ul>
+            <div class="sidebar-footer">
+                <button onclick="handleLogout()" class="btn-logout">Logout</button>
+            </div>
+        </nav>
+
+        <main class="content-area">
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page">
+                <h2>Analytics Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card glass-card">
+                        <h3>Total Sent</h3>
+                        <p id="stat-total">0</p>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <h3>Successful</h3>
+                        <p id="stat-success" class="text-success">0</p>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <h3>Failed</h3>
+                        <p id="stat-failed" class="text-error">0</p>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <h3>Success Rate</h3>
+                        <p id="stat-rate">0%</p>
+                    </div>
+                </div>
+                <div class="recent-logs glass-card">
+                    <h3>Recent Activity</h3>
+                    <div class="table-container">
+                        <table id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>Recipient</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contacts Page -->
+            <div id="page-contacts" class="page hidden">
+                <div class="page-header">
+                    <h2>Manage Contacts</h2>
+                    <div class="header-actions">
+                        <button onclick="document.getElementById('csvFileInput').click()" class="btn-secondary btn-sm">Import CSV</button>
+                        <input type="file" id="csvFileInput" hidden accept=".csv" onchange="uploadCSV(this)">
+                        <button onclick="openNewContactModal()" class="btn-primary btn-sm">+ New Contact</button>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <input type="text" id="contactSearch" placeholder="Search contacts by name, phone or tags..." onkeyup="filterContacts()">
+                </div>
+                
+                <div class="contacts-container">
+                    <div class="contacts-section">
+                        <h3>All Contacts</h3>
+                        <div class="contacts-grid" id="contactsList"></div>
+                    </div>
+                    
+                    <div class="groups-section">
+                        <div class="section-header">
+                            <h3>Groups</h3>
+                            <button onclick="toggleModal('groupModal')" class="btn-primary btn-xs">+ New Group</button>
+                        </div>
+                        <div class="groups-list" id="groupsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Page -->
+            <div id="page-templates" class="page hidden">
+                <div class="page-header">
+                    <h2>Message Templates</h2>
+                    <button onclick="openNewTemplateModal()" class="btn-primary btn-sm">+ New Template</button>
+                </div>
+                <div class="search-bar">
+                    <input type="text" id="templateSearch" placeholder="Search templates by title..." onkeyup="filterTemplates()">
+                </div>
+                <div class="templates-grid" id="templatesList"></div>
+            </div>
+
+            <!-- Composer Page -->
+            <div id="page-composer" class="page hidden">
+                <h2>Message Composer</h2>
+                <div class="composer-card glass-card">
+                    <div class="form-group">
+                        <label>Select Template</label>
+                        <select id="composerTemplateSelect"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Groups</label>
+                        <select id="composerGroupSelect">
+                            <option value="">Select a Group</option>
+                        </select>
+                    </div>
+                    <p class="or-text">OR</p>
+                    <div class="form-group">
+                        <label>Specific Contacts</label>
+                        <div id="composerContactsChecklist" class="checklist"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Schedule For (Optional)</label>
+                        <input type="datetime-local" id="composerScheduleTime">
+                    </div>
+                    <button onclick="handleSendMessage()" class="btn-primary">Queue Message(s)</button>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="page-settings" class="page hidden">
+                <h2>Account Settings</h2>
+                <div class="settings-grid">
+                    <div class="settings-card glass-card">
+                        <h3>Update Profile</h3>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="settingsEmail" placeholder="your@email.com">
+                        </div>
+                        <button onclick="updateProfile()" class="btn-primary">Save Profile</button>
+                    </div>
+                    
+                    <div class="settings-card glass-card">
+                        <h3>Change Password</h3>
+                        <div class="form-group">
+                            <label>Old Password</label>
+                            <input type="password" id="oldPassword" placeholder="Current Password">
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="newPassword" placeholder="New Password">
+                        </div>
+                        <button onclick="changePassword()" class="btn-primary">Update Password</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="contactModal" class="modal hidden">
+        <div class="glass-card modal-content">
+            <h3 id="contactModalTitle">Add New Contact</h3>
+            <input type="hidden" id="editContactId">
+            <input type="text" id="newContactName" placeholder="Name">
+            <input type="text" id="newContactPhone" placeholder="Phone (e.g. +123456789)">
+            <input type="text" id="newContactTags" placeholder="Tags (comma separated)">
+            <div class="modal-actions">
+                <button onclick="toggleModal('contactModal')" class="btn-secondary">Cancel</button>
+                <button id="contactSaveBtn" onclick="saveContact()" class="btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="templateModal" class="modal hidden">
+        <div class="glass-card modal-content">
+            <h3 id="templateModalTitle">Add New Template</h3>
+            <input type="hidden" id="editTemplateId">
+            <input type="text" id="newTemplateTitle" placeholder="Template Title">
+            <textarea id="newTemplateBody" placeholder="Message Body (use {{name}} for placeholders)"></textarea>
+            <div class="modal-actions">
+                <button onclick="toggleModal('templateModal')" class="btn-secondary">Cancel</button>
+                <button id="templateSaveBtn" onclick="saveTemplate()" class="btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="groupModal" class="modal hidden">
+        <div class="glass-card modal-content">
+            <h3>Create New Group</h3>
+            <input type="text" id="newGroupName" placeholder="Group Name">
+            <div class="modal-actions">
+                <button onclick="toggleModal('groupModal')" class="btn-secondary">Cancel</button>
+                <button onclick="saveGroup()" class="btn-primary">Create Group</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="groupContactsModal" class="modal hidden">
+        <div class="glass-card modal-content">
+            <h3 id="groupContactsTitle">Group Contacts</h3>
+            <div id="groupContactsList" class="checklist" style="max-height: 400px; margin-top: 20px;"></div>
+            <div class="modal-actions">
+                <button onclick="toggleModal('groupContactsModal')" class="btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
