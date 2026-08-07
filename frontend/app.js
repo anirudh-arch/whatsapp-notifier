@@ -1,4 +1,4 @@
-const API_BASE = window.location.origin;
+const API_BASE = "https://whatsapp-notifier-4cuw.onrender.com";
 let currentUser = null;
 let allContacts = [];
 let allTemplates = [];
