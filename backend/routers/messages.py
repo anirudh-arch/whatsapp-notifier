@@ -6,7 +6,10 @@ from typing import List, Optional
 import models, auth_utils, utils
 from database import get_db, SessionLocal
 from pydantic import BaseModel
-import pywhatkit
+try:
+    import pywhatkit
+except Exception:
+    pywhatkit = None
 import time
 import asyncio
 import json
@@ -39,16 +42,20 @@ async def dispatch_whatsapp_messages(user_id: int, template_body: str, contact_i
             status = "failed"
             if phone:
                 try:
-                    # Run the blocking pywhatkit call in a separate thread
-                    await asyncio.to_thread(
-                        pywhatkit.sendwhatmsg_instantly,
-                        phone_no=phone,
-                        message=final_msg,
-                        wait_time=15,
-                        tab_close=True,
-                        close_time=5
-                    )
-                    status = "success"
+                    if pywhatkit is not None:
+                        await asyncio.to_thread(
+                            pywhatkit.sendwhatmsg_instantly,
+                            phone_no=phone,
+                            message=final_msg,
+                            wait_time=15,
+                            tab_close=True,
+                            close_time=5
+                        )
+                        status = "success"
+                    else:
+                        print(f"Skipped WhatsApp send to {phone}: pywhatkit not available on cloud.")
+                        status = "skipped"
+                    
                     await asyncio.sleep(2)
                 except Exception as e:
                     print(f"Failed to send to {phone}: {e}")
