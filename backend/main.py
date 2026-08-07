@@ -20,7 +20,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="WhatsApp Campaign Manager API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows requests from your Vercel frontend
+    allow_origins=["https://whatsapp-notifier-ten.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
