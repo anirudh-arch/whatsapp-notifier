@@ -21,12 +21,14 @@ app = FastAPI(title="WhatsApp Campaign Manager API")
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origins=[
+        "https://whatsapp-notifier-ten.vercel.app",
+        "https://whatsapp-notifier.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 @app.get("/api/health")
 
 @app.get("/api/health")
