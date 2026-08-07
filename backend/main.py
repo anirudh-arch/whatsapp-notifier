@@ -18,9 +18,10 @@ from limiter_config import limiter
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="WhatsApp Campaign Manager API")
+from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://whatsapp-notifier-ten.vercel.app"],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
